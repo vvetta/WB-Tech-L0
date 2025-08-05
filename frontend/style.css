@@ -1,0 +1,112 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  width: 100%;
+
+  overflow: hidden;
+  padding: 0px;
+  margin: 0px;
+}
+
+body {
+  padding: 0px;
+  margin: 0px;
+}
+
+main {
+  height: 100vh;
+  width: 100vw;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.main-content-container {
+  position: relative;
+  height: 500px;
+  width: 300px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-id-container {
+  display: flex;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: center;
+}
+
+.input-id-container form {
+  display: flex;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-input-field {
+  position: relative; 
+  font-size: 14px;
+}
+
+.custom-input-field input {
+  border: none;
+  appearance: none;
+  padding: 12px;
+  border-radius: 3px;
+  width: 250px;
+  font-size: 14px;
+  background: #f2f2f2;
+
+  transition: 0.1s ease;
+}
+
+.custom-input-field input:focus {
+  outline: 2px solid purple;
+}
+
+
+.submit-button {
+  cursor: pointer;
+  width: 250px;
+  height: 40px;
+}
+
+.message-container {
+  position: absolute;
+  top: -100px;
+
+  height: 50px; 
+  width: 100%;
+  
+  background-color: red;
+
+  font-size: 24px;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  transition: 1s ease;
+}
+
+.view-order-container {
+  display: none;
+}
+
+.reload-button-container {
+  display: none;
+  position: absolute;
+  cursor: pointer;
+
+  top: 0px;
+  right: 0px;
+}

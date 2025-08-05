@@ -1,0 +1,45 @@
+<DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WB-Tech-L0</title>
+    <link href="./style.css" rel="stylesheet">
+  </head>
+  <body>
+
+    <main>
+      <div class="main-content-container">
+       
+        <!-- Контейнер для ввода id заказа. -->
+        <div class="input-id-container" id="input-id-container">
+          <form id="input-form">
+            <label class="custom-input-field">
+              <input type="text" name="order_id" placeholder="Введите id заказа: ">
+            </label>
+            <button class="submit-button" id="submit-button">
+              <span>Получить информацию</span>
+            </button> 
+          </form>
+        </div>
+
+        <!-- Контейнер для просмотра информации о заказе. --> 
+        <div class="view-order-container" id="view-order-container">
+          <textarea id="textarea-json" disabled></textarea>
+        </div>
+
+        <!-- Контейнер для кнопки обновления. -->
+        <div class="reload-button-container" id="reload-button-container">
+          <img src="assets/rotate_10503181.png" width="50px" height="50px"> 
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Контейнер для логов. -->
+    <div class="message-container" id="message-container">
+    </div>
+
+    <script src="./main.js"></script>
+  </body>
+</html>
