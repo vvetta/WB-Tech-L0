@@ -79,7 +79,7 @@ async function handleFormSubmit(event) {
       showMessage(json.message);
     }
 
-    showResponse(json);
+    showResponse(JSON.stringify(json));
   
   } catch (error) {
     // Произошла ошибка при отправке формы. 
