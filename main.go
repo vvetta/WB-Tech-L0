@@ -1,9 +1,12 @@
 package main
 
 import (
-	"fmt"
+	"WB-Tech-L0/config"
 )
 
 func main() {
-	fmt.Println("Hello, World!")
+	err := config.Init()
+	if err != nil {
+		return
+	}
 }
