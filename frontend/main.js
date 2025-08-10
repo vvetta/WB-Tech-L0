@@ -80,7 +80,8 @@ async function handleFormSubmit(event) {
     }
 
     showResponse(JSON.stringify(json));
-  
+    showMessage("Запрос выполнен!", "green");
+
   } catch (error) {
     // Произошла ошибка при отправке формы. 
     showMessage(error);
