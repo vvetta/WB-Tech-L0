@@ -8,6 +8,8 @@ import (
 
 	"WB-Tech-L0/config"
 	"WB-Tech-L0/models"
+	"WB-Tech-L0/producer"
+	"WB-Tech-L0/consumer"
 )
 
 func main() {
@@ -15,6 +17,13 @@ func main() {
 	if err != nil {
 		return
 	}
+
+	err = producer.AddTestMessageToKafka()
+	if err != nil {
+		return
+	}
+
+	go consumer.ConsumeOrders()
 
 	http.HandleFunc("/order/", ProcessingOrder)
 
