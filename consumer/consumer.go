@@ -1,12 +1,14 @@
 package consumer
 
 import (
+	"log"
 	"fmt"
-	"WB-Tech-L0/models"
 	"context"
 	"encoding/json"
 
 	"WB-Tech-L0/config"
+	"WB-Tech-L0/models"
+	"WB-Tech-L0/database"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -35,10 +37,14 @@ func ConsumeOrders() {
 		var order models.Order
 		err = json.Unmarshal(msg.Value, &order)
 		if err != nil {
+			log.Println("Получено не валидное сообщение: ", err)
 			continue
 		}
+	
+		//TODO Проверка наличия сообщения в базе данных.
 
-		// Тут будет сохранение в базу данных, на данный момент просто Print.
-		fmt.Println(order)
+		database.AddOrderToDB(order)
+
+		fmt.Println("From kafka: ", order.OrderUID)
 	}
 }

@@ -53,3 +53,9 @@ func GetKafkaTopicName() string {
 
 	return topicName
 }
+
+func GetDSN() string {
+// Возвращает данные для подключения к базе данных.
+	var dsn string
+	return dsn
+}

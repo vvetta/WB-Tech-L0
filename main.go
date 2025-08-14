@@ -10,6 +10,7 @@ import (
 	"WB-Tech-L0/models"
 	"WB-Tech-L0/producer"
 	"WB-Tech-L0/consumer"
+	"WB-Tech-L0/database"
 )
 
 func main() {
@@ -19,6 +20,12 @@ func main() {
 	}
 
 	err = producer.AddTestMessageToKafka()
+	if err != nil {
+		return
+	}
+
+	//TODO Инициализация базы данных.
+	err = database.InitDB()
 	if err != nil {
 		return
 	}
@@ -41,6 +48,10 @@ func ProcessingOrder(w http.ResponseWriter, req *http.Request) {
 		http.NotFound(w, req)
 		return
 	}
+
+	//TODO Получение заказа из базы данных.
+
+	//TODO Кэширование заказа.
 
 	log.Printf("Начинаю поиск заказа: %s", id)
 
