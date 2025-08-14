@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 
 	"WB-Tech-L0/models"
+	"WB-Tech-L0/config"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -15,8 +16,13 @@ import (
 func AddTestMessageToKafka() error {
 	ctx := context.Background()
 
+	kafkaBrokers, err := config.GetKafkaBrokers()
+	if err != nil {
+		return err
+	}
+
 	writer := kafka.NewWriter(kafka.WriterConfig{
-		Brokers: []string{"localhost:9092"},
+		Brokers: kafkaBrokers,
 		Topic: "test-topic",
 	})
 

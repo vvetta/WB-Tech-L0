@@ -6,12 +6,19 @@ import (
 	"context"
 	"encoding/json"
 
+	"WB-Tech-L0/config"
+
 	"github.com/segmentio/kafka-go"
 )
 
 func ConsumeOrders() {
+	kafkaBrokers, err := config.GetKafkaBrokers()
+	if err != nil {
+		fmt.Print(err)
+	}
+
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: []string{"localhost:9092"},
+		Brokers: kafkaBrokers,
 		Topic: "test-topic",
 	})
 
