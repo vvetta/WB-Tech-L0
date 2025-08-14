@@ -17,9 +17,11 @@ func ConsumeOrders() {
 		fmt.Print(err)
 	}
 
+	kafkaTopicName := config.GetKafkaTopicName()
+
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: kafkaBrokers,
-		Topic: "test-topic",
+		Topic: kafkaTopicName,
 	})
 
 	defer reader.Close()

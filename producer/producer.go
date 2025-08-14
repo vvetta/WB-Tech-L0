@@ -21,9 +21,11 @@ func AddTestMessageToKafka() error {
 		return err
 	}
 
+	kafkaTopicName := config.GetKafkaTopicName()
+
 	writer := kafka.NewWriter(kafka.WriterConfig{
 		Brokers: kafkaBrokers,
-		Topic: "test-topic",
+		Topic: kafkaTopicName,
 	})
 
 	defer writer.Close()

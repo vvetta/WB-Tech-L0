@@ -43,3 +43,13 @@ func GetKafkaBrokers() ([]string, error) {
 	return kafkaBrokers, nil
 }
 
+func GetKafkaTopicName() string {
+// Возвращает имя топика из .env файла, если его нет, то возвращает дефолтное значение.
+	topicName := os.Getenv("KAFKATOPICNAME")
+
+	if len(topicName) == 0 {
+		topicName = "ordersTopic"
+	}
+
+	return topicName
+}
