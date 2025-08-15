@@ -3,13 +3,16 @@ Package models содержит в себе определение всех мо
 */
 package models
 
+import "gorm.io/gorm"
+
 type Order struct {
-	OrderUID          string       `json:"order_uid"`
+	gorm.Model
+	OrderUID          string       `json:"order_uid" gorm:"primaryKey;unique"`
 	TrackNumber       string       `json:"track_number"`
 	Entry             string       `json:"entry"`
-	Delivery          DeliveryInfo `json:"delivery"`
-	Payment           PaymentInfo  `json:"payment"`
-	Items             []ItemInfo   `json:"items"`
+	Delivery          DeliveryInfo `json:"delivery" gorm:"embedded"`
+	Payment           PaymentInfo  `json:"payment" gorm:"embedded"`
+	Items             []ItemInfo   `json:"items" gorm:"foreignKey:OrderUID;references:OrderUID"`
 	Locale            string       `json:"locale"`
 	InternalSignature string       `json:"internal_signature"`
 	CustomerID        string       `json:"customer_id"`
@@ -20,39 +23,49 @@ type Order struct {
 	OOFShard          string       `json:"oof_shard"`
 }
 
+/*
+Структуры DeliveryInfo и PaymentInfo просто встраиваем внутрь таблицы Order, а потом разворачиваем.
+*/
+
 type DeliveryInfo struct {
-	Name    string `json:"name"`
-	Phone   string `json:"phone"`
-	Zip     string `json:"zip"`
-	City    string `json:"city"`
-	Address string `json:"address"`
-	Region  string `json:"region"`
-	Email   string `json:"email"`
+	Name    string `json:"name" gorm:"not null"`
+	Phone   string `json:"phone" gorm:"not null"`
+	Zip     string `json:"zip" gorm:"not null"`
+	City    string `json:"city" gorm:"not null"`
+	Address string `json:"address" gorm:"not null"`
+	Region  string `json:"region" gorm:"not null"`
+	Email   string `json:"email" gorm:"not null"`
 }
 
 type PaymentInfo struct {
-	Transaction  string `json:"transaction"`
-	RequestID    string `json:"request_id"`
-	Currency     string `json:"currency"`
-	Provider     string `json:"provider"`
-	Amount       int    `json:"amount"`
-	PaymentDT    int    `json:"payment_dt"`
-	Bank         string `json:"bank"`
-	DeliveryCost int    `json:"delivery_cost"`
-	GoodsTotal   int    `json:"goods_total"`
-	CustomFee    int    `json:"custom_fee"`
+	Transaction  string `json:"transaction" gorm:"not null"`
+	RequestID    string `json:"request_id" gorm:"not null"`
+	Currency     string `json:"currency" gorm:"not null"`
+	Provider     string `json:"provider" gorm:"not null"`
+	Amount       int    `json:"amount" gorm:"not null"`
+	PaymentDT    int    `json:"payment_dt" gorm:"not null"`
+	Bank         string `json:"bank" gorm:"not null"`
+	DeliveryCost int    `json:"delivery_cost" gorm:"not null"`
+	GoodsTotal   int    `json:"goods_total" gorm:"not null"`
+	CustomFee    int    `json:"custom_fee" gorm:"not null"`
 }
 
+/*
+Для товаров внутри заказа создаем отдельную таблицу, а потом связываем их с заказом по ключу заказа.
+*/
+
 type ItemInfo struct {
-	ChrtID      int    `json:"chrt_id"`
-	TrackNumber string `json:"track_number"`
-	Price       int    `json:"price"`
-	RID         string `json:"rid"`
-	Name        string `json:"name"`
-	Sale        int    `json:"sale"`
-	Size        string `json:"size"`
-	TotalPrice  int    `json:"total_price"`
-	NmID        int    `json:"nm_id"`
-	Brand       string `json:"brand"`
-	Status      int    `json:"status"`
+	gorm.Model
+	OrderUID string `json:"-" gorm:"index"`
+	ChrtID      int    `json:"chrt_id" gorm:"not null"`
+	TrackNumber string `json:"track_number" gorm:"not null"`
+	Price       int    `json:"price" gorm:"not null"`
+	RID         string `json:"rid" gorm:"not null"`
+	Name        string `json:"name" gorm:"not null"`
+	Sale        int    `json:"sale" gorm:"not null"`
+	Size        string `json:"size" gorm:"not null"`
+	TotalPrice  int    `json:"total_price" gorm:"not null"`
+	NmID        int    `json:"nm_id" gorm:"not null"`
+	Brand       string `json:"brand" gorm:"not null"`
+	Status      int    `json:"status" gorm:"not null"`
 }
