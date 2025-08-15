@@ -55,7 +55,26 @@ func GetKafkaTopicName() string {
 }
 
 func GetDSN() string {
-// Возвращает данные для подключения к базе данных.
-	var dsn string
+// Возвращает данные для подключения к базе данных. DSN (Data Source Name)
+	dbHost := os.Getenv("DBHOST")
+	dbUser := os.Getenv("DBUSER")
+	dbPass := os.Getenv("DBPASS")
+	dbName := os.Getenv("DBNAME")
+	dbPort := os.Getenv("DBPORT")
+
+	if dbHost == "" {
+		log.Fatal("В .env файле отсутствует 'DBHOST'.")
+	} else if dbUser == "" {
+		log.Fatal("В .env файле отсутствует 'DBUSER'.")
+	} else if dbPass == "" {
+		log.Fatal("В .env файле отсутствует 'DBPASS'.")
+	} else if dbName == "" {
+		log.Fatal("В .env файле отсутствует 'DBNAME'.")
+	} else if dbPort == "" {
+		log.Fatal("В .env файле отсутствует 'DBPORT'.") 
+	}
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s", dbHost, dbUser, dbPass, dbName, dbPort)
+
 	return dsn
 }
