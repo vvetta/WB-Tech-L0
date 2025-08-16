@@ -90,6 +90,10 @@ func WarmUpCache() error {
 		return fmt.Errorf("Не получилось загрузить кеш! %w", err)
 	}
 
+	if len(orders) == 0 {
+		return nil
+	}
+
 	for i := 0; i < len(orders) ; i++ {
 		cache.Set(&orders[i])
 	}
