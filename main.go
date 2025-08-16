@@ -1,11 +1,13 @@
 package main
 
 import (
+	"time"
 	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
 
+	"WB-Tech-L0/cache"
 	"WB-Tech-L0/config"
 	"WB-Tech-L0/models"
 	"WB-Tech-L0/producer"
@@ -38,6 +40,8 @@ func main() {
 }
 
 func ProcessingOrder(w http.ResponseWriter, req *http.Request) {
+	startTime := time.Now()
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -49,15 +53,23 @@ func ProcessingOrder(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//TODO Получение заказа из базы данных.
-
-	//TODO Кэширование заказа.
-
-	log.Printf("Начинаю поиск заказа: %s", id)
-
-	resp := models.Order{
-		OrderUID: id,
+	cachedOrder := cache.Get(id)
+	if cachedOrder != nil {
+		log.Printf("Заказ был получен из кэша: %s", id)
+		log.Printf("Время выполнения запроса: %s", time.Since(startTime))	
+		json.NewEncoder(w).Encode(cachedOrder)
 	}
 
-	json.NewEncoder(w).Encode(resp)
+	var orders []models.Order
+	orders, err := database.GetOrdersFromDB([]string{id})
+	if err != nil {
+		return
+	}
+
+	cache.Set(&orders[0])
+
+	log.Printf("Заказ был получен из базы данных: %s", id)
+	log.Printf("Время выполнения запроса: %s", time.Since(startTime))	
+
+	json.NewEncoder(w).Encode(orders[0])
 }
