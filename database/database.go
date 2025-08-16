@@ -7,8 +7,8 @@ import (
 	"WB-Tech-L0/models"
   "WB-Tech-L0/config"
 
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/driver/postgres"
 )
 
 var DB *gorm.DB

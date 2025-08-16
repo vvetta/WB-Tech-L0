@@ -1,11 +1,12 @@
 package main
 
 import (
-	"time"
-	"encoding/json"
+	"fmt"
 	"log"
-	"net/http"
+	"time"
 	"strings"
+	"net/http"
+	"encoding/json"
 
 	"WB-Tech-L0/cache"
 	"WB-Tech-L0/config"
@@ -26,8 +27,12 @@ func main() {
 		return
 	}
 
-	//TODO Инициализация базы данных.
 	err = database.InitDB()
+	if err != nil {
+		return
+	}
+
+	err = WarmUpCache()
 	if err != nil {
 		return
 	}
@@ -73,3 +78,22 @@ func ProcessingOrder(w http.ResponseWriter, req *http.Request) {
 
 	json.NewEncoder(w).Encode(orders[0])
 }
+
+func WarmUpCache() error {
+// Заполняет кеш данными при запуске сервиса.
+	
+	var err error
+	var orders []models.Order
+
+	orders, err = database.GetOrdersFromDB([]string{}, "all")
+	if err != nil {
+		return fmt.Errorf("Не получилось загрузить кеш! %w", err)
+	}
+
+	for i := 0; i < len(orders) ; i++ {
+		cache.Set(&orders[i])
+	}
+	
+	return nil
+}
+

@@ -4,9 +4,9 @@ Package config содержит в себе всю конфигурацию пр
 package config
 
 import (
+	"os"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/joho/godotenv"
