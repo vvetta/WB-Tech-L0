@@ -3,10 +3,20 @@ Package models содержит в себе определение всех мо
 */
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+	"gorm.io/gorm"
+)
+
+type BaseModel struct {
+	ID        uint `gorm:"primarykey" json:"-"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+}
 
 type Order struct {
-	gorm.Model
+	BaseModel
 	OrderUID          string       `json:"order_uid" gorm:"primaryKey;unique"`
 	TrackNumber       string       `json:"track_number"`
 	Entry             string       `json:"entry"`
@@ -55,7 +65,7 @@ type PaymentInfo struct {
 */
 
 type ItemInfo struct {
-	gorm.Model
+	BaseModel
 	OrderUID string `json:"-" gorm:"index"`
 	ChrtID      int    `json:"chrt_id" gorm:"not null"`
 	TrackNumber string `json:"track_number" gorm:"not null"`

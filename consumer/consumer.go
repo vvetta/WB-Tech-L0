@@ -2,7 +2,7 @@ package consumer
 
 import (
 	"log"
-	"fmt"
+	"time"
 	"context"
 	"encoding/json"
 
@@ -16,35 +16,58 @@ import (
 func ConsumeOrders() {
 	kafkaBrokers, err := config.GetKafkaBrokers()
 	if err != nil {
-		fmt.Print(err)
+		log.Fatalf("Kafka brokers error: %v", err)
 	}
-
 	kafkaTopicName := config.GetKafkaTopicName()
 
 	reader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: kafkaBrokers,
-		Topic: kafkaTopicName,
+		Brokers:        kafkaBrokers,
+		Topic:          kafkaTopicName,
+		GroupID:        "wb-tech-l0-orders", // важно для идемпотентного чтения
+		MinBytes:       1,
+		MaxBytes:       10e6,
+		CommitInterval: 0,                   // коммитим вручную после успеха
+		// StartOffset:  kafka.LastOffset,   // <- расскомментируй в dev, чтобы пропускать старую историю при НОВОЙ группе
 	})
+	defer func() {
+		if err := reader.Close(); err != nil {
+			log.Printf("Kafka reader close error: %v", err)
+		}
+	}()
 
-	defer reader.Close()
+	ctx := context.Background()
 
 	for {
-		msg, err := reader.ReadMessage(context.Background())
+		m, err := reader.FetchMessage(ctx)
 		if err != nil {
+			log.Printf("Kafka fetch error: %v", err)
+			time.Sleep(200 * time.Millisecond)
 			continue
 		}
 
 		var order models.Order
-		err = json.Unmarshal(msg.Value, &order)
-		if err != nil {
-			log.Println("Получено не валидное сообщение: ", err)
+		if err := json.Unmarshal(m.Value, &order); err != nil {
+			log.Printf("Bad message (JSON): %v", err)
+			if cerr := reader.CommitMessages(ctx, m); cerr != nil {
+				log.Printf("Kafka commit error after bad msg: %v", cerr)
+			}
 			continue
 		}
-	
-		//TODO Проверка наличия сообщения в базе данных.
 
-		database.AddOrderToDB(order)
+		created, err := database.AddOrderUpsert(&order)
+		if err != nil {
+			log.Printf("DB error: %v", err)
+			continue
+		}
 
-		fmt.Println("From kafka: ", order.OrderUID)
+		if created {
+			log.Printf("Order %s inserted", order.OrderUID)
+		} else {
+			log.Printf("Order %s already exists — skipped", order.OrderUID)
+		}
+
+		if err := reader.CommitMessages(ctx, m); err != nil {
+			log.Printf("Kafka commit error: %v", err)
+		}
 	}
 }

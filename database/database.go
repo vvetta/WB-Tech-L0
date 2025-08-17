@@ -8,6 +8,7 @@ import (
   "WB-Tech-L0/config"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"gorm.io/driver/postgres"
 )
 
@@ -33,21 +34,31 @@ func InitDB() error {
 }
 
 
-func AddOrderToDB(order *models.Order) error {
-// Сохраняет заказ в базу данных.
-	if order == nil {
-		return fmt.Errorf("Нулевой указатель заказа!")
-	}
+func AddOrderUpsert(order *models.Order) (created bool, err error) {
+    if order == nil {
+        return false, fmt.Errorf("Нулевой указатель заказа")
+    }
 
-	err := DB.Transaction(func(tx *gorm.DB) error {
-		err := tx.Create(order).Error
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+    return created, DB.Transaction(func(tx *gorm.DB) error {
+        // убедимся, что дочкам проставлен FK
+        for i := range order.Items {
+            order.Items[i].OrderUID = order.OrderUID
+        }
 
-	return err
+        res := tx.Session(&gorm.Session{FullSaveAssociations: true}).
+            Clauses(clause.OnConflict{
+                Columns:   []clause.Column{{Name: "order_uid"}},
+                DoNothing: true, // или DoUpdates при нужде обновлять поля
+            }).
+            Create(order)
+
+        if res.Error != nil {
+            return res.Error
+        }
+
+        created = res.RowsAffected > 0
+        return nil
+    })
 }
 
 
@@ -60,13 +71,9 @@ func GetOrdersFromDB(orders_uid []string, opts ...string) ([]models.Order, error
 		*/
 		
 		var allOrders []models.Order
-		err := DB.Preload("Items").Preload("Delivery").Preload("Payment").Find(&allOrders).Error
+		err := DB.Preload("Items").Find(&allOrders).Error
 		if err != nil {
 			return nil, fmt.Errorf("Ошибка при получении всех заказов! %v", err)
-		}
-
-		if len(allOrders) == 0 {
-			return nil, fmt.Errorf("В базе данных нет заказов.")
 		}
 
 		return allOrders, nil
@@ -78,7 +85,7 @@ func GetOrdersFromDB(orders_uid []string, opts ...string) ([]models.Order, error
 
 		var orders []models.Order
 
-		err := DB.Preload("Items").Preload("Delivery").Preload("Payment").Where("order_uid IN ?", orders_uid).Find(&orders).Error
+		err := DB.Preload("Items").Where("order_uid IN ?", orders_uid).Find(&orders).Error
 		if err != nil {
 			return nil, fmt.Errorf("Ошибка при получении заказов: %v", err)
 		}

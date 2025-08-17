@@ -43,7 +43,7 @@ func AddTestMessageToKafka() error {
 		return err
 	}
 
-	fmt.Println("OrderUID: ", jsonOrderId)
+	fmt.Println("Тестовый заказ отправлен в Kafka. OrderUID: ", jsonOrderId)
 
 	return nil
 }

@@ -24,16 +24,19 @@ func main() {
 
 	err = producer.AddTestMessageToKafka()
 	if err != nil {
+		log.Printf("Ошибка AddTestMessageToKafka: %v", err)
 		return
 	}
 
 	err = database.InitDB()
 	if err != nil {
+		log.Printf("Ошибка InitDB: %v", err)
 		return
 	}
 
 	err = WarmUpCache()
 	if err != nil {
+		log.Printf("Ошибка WarmUpCache: %v", err)
 		return
 	}
 
@@ -60,9 +63,12 @@ func ProcessingOrder(w http.ResponseWriter, req *http.Request) {
 
 	cachedOrder := cache.Get(id)
 	if cachedOrder != nil {
+		elapsed := float64(time.Since(startTime).Microseconds()) / 1000.0
+
 		log.Printf("Заказ был получен из кэша: %s", id)
-		log.Printf("Время выполнения запроса: %s", time.Since(startTime))	
+		log.Printf("Время выполнения запроса: %.3f ms", elapsed)
 		json.NewEncoder(w).Encode(cachedOrder)
+		return 
 	}
 
 	var orders []models.Order
@@ -73,8 +79,10 @@ func ProcessingOrder(w http.ResponseWriter, req *http.Request) {
 
 	cache.Set(&orders[0])
 
+	elapsed := float64(time.Since(startTime).Microseconds()) / 1000.0	
+
 	log.Printf("Заказ был получен из базы данных: %s", id)
-	log.Printf("Время выполнения запроса: %s", time.Since(startTime))	
+	log.Printf("Время выполнения запроса: %.3f ms", elapsed)
 
 	json.NewEncoder(w).Encode(orders[0])
 }
