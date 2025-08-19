@@ -4,9 +4,9 @@ Package config содержит в себе всю конфигурацию пр
 package config
 
 import (
-	"os"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/joho/godotenv"
@@ -25,8 +25,23 @@ func Init() error {
 
 func GetKafkaBrokers() ([]string, error) {
 // Получает адреса клиентов Kafka из .env файла.
-	hosts := strings.Split(os.Getenv("KAFKAHOSTS"), ",")
-	ports := strings.Split(os.Getenv("KAFKAPORTS"), ",")
+
+	kafkaPorts := os.Getenv("KAFKAPORTS")
+	kafkaHosts := os.Getenv("KAFKAHOSTS")
+
+	if kafkaPorts == "" {
+		log.Print("В .env файле отсутствует 'KAFKAPORTS'.")
+		return []string{}, fmt.Errorf("Не получилось загрузить Kafka адреса!")
+	}
+
+	if kafkaHosts == "" {
+		log.Print("В .env файле отсутствует 'KAFKAHOSTS'.")
+		return []string{}, fmt.Errorf("Не получилось загрузить Kafka адреса!")
+	}
+
+	hosts := strings.Split(kafkaHosts, ",")
+	ports := strings.Split(kafkaPorts, ",")
+
 
 	if (len(hosts) != len(ports)) || len(hosts) == 0 || len(ports) == 0 {
 		log.Print("Не получилось загрузить Kafka адреса!")
