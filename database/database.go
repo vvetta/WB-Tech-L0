@@ -24,7 +24,6 @@ func InitDB() error {
 		return err
 	}
 
-	//TODO Нужно сделать автомиграцию.
 	err = DB.AutoMigrate(&models.Order{}, &models.ItemInfo{})
 	if err != nil {
 		return err
@@ -40,7 +39,6 @@ func AddOrderUpsert(order *models.Order) (created bool, err error) {
     }
 
     return created, DB.Transaction(func(tx *gorm.DB) error {
-        // убедимся, что дочкам проставлен FK
         for i := range order.Items {
             order.Items[i].OrderUID = order.OrderUID
         }
@@ -48,7 +46,7 @@ func AddOrderUpsert(order *models.Order) (created bool, err error) {
         res := tx.Session(&gorm.Session{FullSaveAssociations: true}).
             Clauses(clause.OnConflict{
                 Columns:   []clause.Column{{Name: "order_uid"}},
-                DoNothing: true, // или DoUpdates при нужде обновлять поля
+                DoNothing: true,
             }).
             Create(order)
 
