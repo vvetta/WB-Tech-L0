@@ -16,22 +16,22 @@ import (
 func ConsumeOrders() {
 	kafkaBrokers, err := config.GetKafkaBrokers()
 	if err != nil {
-		log.Fatalf("Kafka brokers error: %v", err)
+		log.Fatalf("Ошибка при получении Brokers Kafka: %v", err)
 	}
 	kafkaTopicName := config.GetKafkaTopicName()
 
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers:        kafkaBrokers,
 		Topic:          kafkaTopicName,
-		GroupID:        "wb-tech-l0-orders", // важно для идемпотентного чтения
-		MinBytes:       1,
+		GroupID:        "wb-tech-l0-orders",
+		MinBytes:       1, // Благодаря этому параметру можно "Копить" сообщения.
 		MaxBytes:       10e6,
-		CommitInterval: 0,                   // коммитим вручную после успеха
-		// StartOffset:  kafka.LastOffset,   // <- расскомментируй в dev, чтобы пропускать старую историю при НОВОЙ группе
+		CommitInterval: 0, // Этот параметр отключает автоматические коммиты.
 	})
+
 	defer func() {
 		if err := reader.Close(); err != nil {
-			log.Printf("Kafka reader close error: %v", err)
+			log.Printf("Kafka reader закрыт с ошибкой: %v", err)
 		}
 	}()
 
@@ -40,34 +40,35 @@ func ConsumeOrders() {
 	for {
 		m, err := reader.FetchMessage(ctx)
 		if err != nil {
-			log.Printf("Kafka fetch error: %v", err)
+			log.Printf("Ошибка получения нового сообщения: %v", err)
 			time.Sleep(200 * time.Millisecond)
 			continue
 		}
 
 		var order models.Order
 		if err := json.Unmarshal(m.Value, &order); err != nil {
-			log.Printf("Bad message (JSON): %v", err)
+			log.Printf("Получен не валидный json заказа: %v", err)
 			if cerr := reader.CommitMessages(ctx, m); cerr != nil {
-				log.Printf("Kafka commit error after bad msg: %v", cerr)
+				// Сообщение в любом случае коммитим, чтобы не читать его повторно.
+				log.Printf("Ошибка коммита после получения не валидного json: %v", cerr)
 			}
 			continue
 		}
 
 		created, err := database.AddOrderUpsert(&order)
 		if err != nil {
-			log.Printf("DB error: %v", err)
+			log.Printf("Ошибка базы данных: %v", err)
 			continue
 		}
 
 		if created {
-			log.Printf("Order %s inserted", order.OrderUID)
+			log.Printf("Заказ %s вставлен в базу данных.", order.OrderUID)
 		} else {
-			log.Printf("Order %s already exists — skipped", order.OrderUID)
+			log.Printf("Заказ %s уже присутствует в базе данных — пропускаю", order.OrderUID)
 		}
 
 		if err := reader.CommitMessages(ctx, m); err != nil {
-			log.Printf("Kafka commit error: %v", err)
+			log.Printf("Ошибка коммита: %v", err)
 		}
 	}
 }
