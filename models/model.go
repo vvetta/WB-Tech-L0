@@ -79,3 +79,10 @@ type ItemInfo struct {
 	Brand       string `json:"brand" gorm:"not null"`
 	Status      int    `json:"status" gorm:"not null"`
 }
+
+
+type NotValidOrder struct {
+	OrderUID          string       `json:"order_uid"`
+	TrackNumber       int       `json:"track_number"`
+	Entry             string       `json:"entry"`
+}

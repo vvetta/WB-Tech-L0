@@ -35,15 +35,26 @@ func AddTestMessageToKafka() error {
 		return err
 	}
 
-	err = writer.WriteMessages(ctx, kafka.Message{
+	notValidJsonOrder, notValidJsonOrderId, err := generateRandomNotValidOrderJson()
+	if err != nil {
+		return err
+	}
+
+	err = writer.WriteMessages(ctx, 
+	kafka.Message{
 		Value: jsonOrder,
-	})
+	},
+	kafka.Message{
+		Value: notValidJsonOrder,
+	},
+	)
 
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("Тестовый заказ отправлен в Kafka. OrderUID: ", jsonOrderId)
+	fmt.Println("Не валидный тестовый заказ отправлен в Kafka. OrderUID: ", notValidJsonOrderId)
 
 	return nil
 }
@@ -59,6 +70,24 @@ func PrintTestJsonOrder() {
 
 	fmt.Println("OrderID: ", jsonOrderId)
 	fmt.Println(order)
+}
+
+func generateRandomNotValidOrderJson() ([]byte, string, error) {
+// Генерирует не валидный заказ.
+
+	notValidOrder := models.NotValidOrder{
+		OrderUID: generateRandomString(5),
+		TrackNumber: getRandomInt(),
+		Entry: generateRandomString(5),
+	}
+	
+	b, err := json.Marshal(notValidOrder)
+
+	if err != nil {
+		return b, notValidOrder.OrderUID, err
+	}
+
+	return b, notValidOrder.OrderUID, nil
 }
 
 func generateRandomOrderJson() ([]byte, string, error) {
