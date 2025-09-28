@@ -2,7 +2,7 @@ package cache
 
 import (
 	"sync"
-	"WB-Tech-L0/domain"
+	"WB-Tech-L0/internal/domain"
 )
 
 type MemoryCache struct {

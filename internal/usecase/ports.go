@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"WB-Tech-L0/domain"
+	"WB-Tech-L0/internal/domain"
 	"context"
 	"github.com/google/uuid"
 )
