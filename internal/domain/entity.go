@@ -6,7 +6,7 @@ type Order struct {
 	Entry string
 	Delivery DeliveryInfo
 	Payment PaymentInfo
-	Items ItemInfo
+	Items []ItemInfo
 	Locale string
 	InternalSignature string
 	CustomerID string

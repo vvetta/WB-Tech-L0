@@ -12,7 +12,12 @@ type Cache interface {
 }
 
 type Repo interface {
-	UpsertOrder(ctx context.Context, order *domain.Order) error
+	UpsertOrder(ctx context.Context, order *domain.Order) (bool, error)
 	GetOrderById(ctx context.Context, orderId uuid.UUID) (*domain.Order, error)
 	ListRecentOrders(ctx context.Context, limit int) ([]*domain.Order, error)
+}
+
+type MessageConsumer interface {
+	Start(ctx context.Context) error
+	Stop(ctx context.Context) error
 }
