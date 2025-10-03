@@ -3,10 +3,10 @@ package repository
 import (
 	"WB-Tech-L0/internal/domain"
 	"context"
-	"github.com/google/uuid"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"	
 	"fmt"
+	"errors"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type PostgresRepo struct {
@@ -45,10 +45,39 @@ func (p *PostgresRepo) UpsertOrder(ctx context.Context, order *domain.Order) (cr
 	})
 }
 
-func (p *PostgresRepo) GetOrderById(ctx context.Context, orderID uuid.UUID) (*domain.Order, error) {
+func (p *PostgresRepo) GetOrderById(ctx context.Context, orderUID string) (*domain.Order, error) {
+	if orderUID == "" {
+		return nil, fmt.Errorf("Передан пустой id заказа!")
+	}
 
+	var gormOrder Order
+
+	err := p.db.Preload("Items").Where("order_uid = ?", orderUID).First(&gormOrder).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("Заказ с данным ( %s )id не найден!", orderUID)	
+		}
+		return nil, fmt.Errorf("Произошла ошибка при получении заказа! %v", err)
+	}
+
+	domainOrder := toDomainOrder(&gormOrder)
+
+	return domainOrder, nil
 }
 
 func (p *PostgresRepo) ListRecentOrders(ctx context.Context, limit int) ([]*domain.Order, error) {
+	var gormOrders []Order
 
+	err := p.db.Preload("Delivery").Preload("Payment").Preload("Items").Order("date_created DESC").Limit(limit).Find(&gormOrders).Error
+	if err != nil {
+		return nil, fmt.Errorf("Произошла ошибка при получении списка заказов! %v", err)
+	}
+
+	domainOrders := make([]*domain.Order, len(gormOrders))
+	for i, gormOrder := range gormOrders {
+		domainOrders[i] = toDomainOrder(&gormOrder)
+	}
+
+	return domainOrders, nil
 }
+
