@@ -3,7 +3,6 @@ package usecase
 import (
 	"WB-Tech-L0/internal/domain"
 	"context"
-	"github.com/google/uuid"
 )
 
 type Cache interface {
@@ -13,7 +12,7 @@ type Cache interface {
 
 type Repo interface {
 	UpsertOrder(ctx context.Context, order *domain.Order) (bool, error)
-	GetOrderById(ctx context.Context, orderId uuid.UUID) (*domain.Order, error)
+	GetOrderById(ctx context.Context, orderUID string) (*domain.Order, error)
 	ListRecentOrders(ctx context.Context, limit int) ([]*domain.Order, error)
 }
 
