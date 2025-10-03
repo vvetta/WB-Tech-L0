@@ -17,32 +17,31 @@ func NewPostgresRepo(db *gorm.DB) *PostgresRepo {
 	return &PostgresRepo{db: db}
 }
 
-func (p *PostgresRepo) UpsertOrder(ctx context.Context, order *domain.Order) (created bool, err error) {
+func (p *PostgresRepo) UpsertOrder(ctx context.Context, order *domain.Order) (bool, error) {
 	if order == nil {
-		//TODO Пока ошибка будет простой fmt, надо изменить.	
 		return false, fmt.Errorf("Нулевой указатель заказа!")
 	}
+	
+	var created bool
+	err := p.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		gm := toGORMOrder(order)
 
-	return false, p.db.Transaction(func(tx *gorm.DB) error {
-		for i := range order.Items {
-			order.Items[i].OrderUID = order.OrderUID
-		}
-
-		result := tx.Session(&gorm.Session{
-			FullSaveAssociations: true,
-		}).Clauses(clause.OnConflict{
+		res := tx.Session(&gorm.Session{FullSaveAssociations: true}).
+		Clauses(clause.OnConflict{
 			Columns: []clause.Column{{Name: "order_uid"}},
 			DoNothing: true,
-		}).Create(order)
-
-		if result.Error != nil {
-			return result.Error
+		}).
+		Create(gm)
+		
+		if res.Error != nil {
+			return res.Error
 		}
 
-		created = result.RowsAffected > 0
-		
+		created = res.RowsAffected > 0 
 		return nil
 	})
+
+	return created, err
 }
 
 func (p *PostgresRepo) GetOrderById(ctx context.Context, orderUID string) (*domain.Order, error) {
