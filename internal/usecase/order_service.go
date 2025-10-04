@@ -1,0 +1,49 @@
+package usecase
+
+import (
+	"context"
+	"WB-Tech-L0/internal/domain"
+)
+
+type OrderService struct {
+	repo Repo
+	cache Cache
+	log Logger
+}
+
+func NewOrderService(r Repo, c Cache, l Logger) *OrderService {
+	return &OrderService{repo: r, cache: c, log: l}
+}
+
+func (s *OrderService) GetByID(ctx context.Context, orderUID string) (*domain.Order, error) {
+	if order, ok := s.cache.Get(orderUID); ok {
+		s.log.Debug("usecase.GetByID: cache hit", "order_uid", orderUID)
+		return order, nil
+	}
+
+	order, err := s.repo.GetOrderById(ctx, orderUID)
+	if err != nil {
+		return nil, err
+	}
+	s.cache.Set(orderUID, order)
+	s.log.Debug("usecase.GetByID: cache miss -> db", "order_uid", orderUID)
+	
+	return order, nil
+}
+
+func (s *OrderService) WarmUpCache(ctx context.Context, limit int) error {
+	s.log.Info("usecase.WarmUpCache: begin", "limit", limit)
+
+	orders, err := s.repo.ListRecentOrders(ctx, limit)
+	if err != nil {
+		s.log.Error("usecase.WarmUpCache: repo error", "err", err)
+		return err	
+	}
+
+	for _, order := range orders {
+		s.cache.Set(order.OrderUID, order)
+	}
+
+	s.log.Info("usecase.WarmUpCache: done", "count", len(orders))
+	return nil
+}

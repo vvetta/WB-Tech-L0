@@ -5,6 +5,14 @@ import (
 	"context"
 )
 
+type OrderReader interface {
+	GetByID(ctx context.Context, orderUID string) (*domain.Order, error)
+}
+
+type CacheWarmer interface {
+	WarmUpCache(ctx context.Context, limit int) error
+}
+
 type Cache interface {
 	Set(key string, value *domain.Order) 
 	Get(key string) (*domain.Order, bool)
