@@ -12,6 +12,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"github.com/joho/godotenv"
 
 	"WB-Tech-L0/internal/adapters/http"
 	"WB-Tech-L0/internal/adapters/cache"
@@ -41,6 +42,8 @@ func mustAtoi(s string, def int) int {
 }
 
 func main() {
+	_ = godotenv.Load(".env")
+
 	pgDSN := getenv("PG_DSN", "host=localhost port=5432 user=postgres password=postgres dbname=wb_l0")
 
 	cacheLimit := mustAtoi(os.Getenv("CACHE_LIMIT"), 10)
