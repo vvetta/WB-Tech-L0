@@ -1,6 +1,7 @@
 package usecase_test
 
 import (
+	"errors"
 	"context"
 	"testing"
 
@@ -150,4 +151,19 @@ func TestOrderService_WarmUpCache_empty(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestOrderService_WarmUpCache_dbError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	repo := mocks.NewMockRepo(ctrl)
+	cache := mocks.NewMockCache(ctrl)
+
+	dbErr := errors.New("db down")
+	repo.EXPECT().ListRecentOrders(gomock.Any(), 3).Return(nil, dbErr)
+	
+	svc := usecase.NewOrderService(repo, cache, noopLogger{})
+	err := svc.WarmUpCache(context.Background(), 3)
+	require.Error(t, err)
+	require.ErrorIs(t, err, dbErr)
+}
 
