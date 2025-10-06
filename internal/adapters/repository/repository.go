@@ -75,7 +75,7 @@ func (p *PostgresRepo) GetOrderById(ctx context.Context, orderUID string) (*doma
 	p.log.Debug("repo.GetOrderById: begin", "order_uid", orderUID)
 
 	var gormOrder Order
-	err := p.db.Preload("Items").Where("order_uid = ?", orderUID).First(&gormOrder).Error
+	err := p.db.WithContext(ctx).Preload("Items").Where("order_uid = ?", orderUID).First(&gormOrder).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			p.log.Info("repo.GetOrderById: not found", "order_uid", orderUID)
@@ -99,7 +99,7 @@ func (p *PostgresRepo) ListRecentOrders(ctx context.Context, limit int) ([]*doma
 
 	var gormOrders []Order
 
-	err := p.db.Preload("Delivery").Preload("Payment").Preload("Items").Order("date_created DESC").Limit(limit).Find(&gormOrders).Error
+	err := p.db.WithContext(ctx).Preload("Items").Order("date_created DESC").Limit(limit).Find(&gormOrders).Error
 	if err != nil {
 		p.log.Error("repo.ListRecentOrders: db error", "err", err)
 		

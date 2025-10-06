@@ -14,7 +14,7 @@ func (d Deps) handleGetOrderByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	orderUID := strings.TrimPrefix(r.URL.Path, "/api/v1/orders/")
+	orderUID := strings.TrimPrefix(r.URL.Path, "/order/")
 	if orderUID == "" || orderUID == r.URL.Path {
 		writeError(w, http.StatusBadRequest, "missing order_uid")	
 		return
