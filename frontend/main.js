@@ -56,7 +56,7 @@ function serializeForm(formNode) {
 
 async function sendData(order_id) {
   return await fetch(api_url+order_id, {
-    method: "POST"
+    method: "GET"
   })
 };
 
