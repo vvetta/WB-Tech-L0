@@ -16,7 +16,7 @@ DB_DSN ?= $(if $(PG_DSN_URL),$(PG_DSN_URL),postgres://$(PG_USER):$(PG_PASSWORD)@
 MIGRATE_IMAGE ?= migrate/migrate:latest
 MIGRATE_RUN = docker run --rm -v $(PWD)/migrations:/migrations --network host $(MIGRATE_IMAGE)
 
-.PHONY: help migrate-up migrate-down migrate-down-all migrate-version migrate-force migrate-new
+.PHONY: test cover coverhtml help migrate-up migrate-down migrate-down-all migrate-version migrate-force migrate-new
 
 help:
 	@echo "Targets:"
@@ -26,6 +26,9 @@ help:
 	@echo "  make migrate-version        # показать текущую версию миграций"
 	@echo "  make migrate-force v=NNNN   # принудительно выставить версию (аккуратно!)"
 	@echo "  make migrate-new name=xxxx  # создать пустые up/down файлы миграции"
+	@echo "  make test  # запускает тесты"
+	@echo "  make cover  # показывает покрытие кода тестами"
+	@echo "  make coverhtml  # выводит html файл с покрытием"
 
 # Применить все недостающие миграции
 migrate-up:
@@ -56,3 +59,13 @@ migrate-new:
 	touch $(MIGRATIONS_DIR)/$${ts}_$(name).down.sql; \
 	echo "Created: $(MIGRATIONS_DIR)/$${ts}_$(name).up.sql / .down.sql"
 
+test:
+	go test ./... -cover
+
+cover:
+	go test ./... -covermode=atomic -coverprofile=coverage.out && \
+	go tool cover -func=coverage.out
+
+coverhtml:
+	go test ./... -covermode=atomic -coverprofile=coverage.out && \
+	go tool cover -html=coverage.out
