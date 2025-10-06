@@ -99,6 +99,24 @@ func TestOrderService_GetByID_cacheMiss(t *testing.T) {
 	require.Equal(t, o, got)
 }
 
+func TestOrderService_GetByID_notFound(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	repo := mocks.NewMockRepo(ctrl)
+	cache := mocks.NewMockCache(ctrl)
+
+	id := "missing"
+	cache.EXPECT().Get(id).Return(nil, false)
+	repo.EXPECT().GetOrderById(gomock.Any(), id).Return(nil, domain.ErrNotFound)
+
+	svc := usecase.NewOrderService(repo, cache, noopLogger{})
+	got, err := svc.GetByID(context.Background(), id)
+	require.Error(t, err)
+	require.ErrorIs(t, err, domain.ErrNotFound)
+	require.Nil(t, got)
+}
+
 func TestOrderService_WarmUpCache_ok(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
