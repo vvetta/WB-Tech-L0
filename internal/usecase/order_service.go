@@ -16,6 +16,11 @@ func NewOrderService(r Repo, c Cache, l Logger) *OrderService {
 }
 
 func (s *OrderService) GetByID(ctx context.Context, orderUID string) (*domain.Order, error) {
+	if orderUID == "" {
+		s.log.Error("usecase.GetByID: empty orderUID")
+		return nil, domain.ErrNotFound
+	}
+
 	if order, ok := s.cache.Get(orderUID); ok {
 		s.log.Debug("usecase.GetByID: cache hit", "order_uid", orderUID)
 		return order, nil
