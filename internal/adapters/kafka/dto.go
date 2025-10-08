@@ -1,20 +1,20 @@
 package kafka
 
 type DTOOrder struct {
-	OrderUID string `json:"order_uid"`
-	TrackNumber string `json:"track_number"`
-	Entry string `json:"entry"`
-	Delivery DTODeliveryInfo `json:"delivery"`
-	Payment DTOPaymentInfo `json:"payment"`
-	Items []DTOItemInfo `json:"items"`
-	Locale string `json:"locale"`
-	InternalSignature string `json:"internal_signature"`
-	CustomerID string `json:"customer_id"`
-	DeliveryService string `json:"delivery_service"`
-	ShardKey string `json:"shardKey"`
-	SMID int `json:"sm_id"`
-	DateCreated string `json:"date_created"`
-	OOFShard string `json:"oof_shard"`
+	OrderUID          string          `json:"order_uid"`
+	TrackNumber       string          `json:"track_number"`
+	Entry             string          `json:"entry"`
+	Delivery          DTODeliveryInfo `json:"delivery"`
+	Payment           DTOPaymentInfo  `json:"payment"`
+	Items             []DTOItemInfo   `json:"items"`
+	Locale            string          `json:"locale"`
+	InternalSignature string          `json:"internal_signature"`
+	CustomerID        string          `json:"customer_id"`
+	DeliveryService   string          `json:"delivery_service"`
+	ShardKey          string          `json:"shardKey"`
+	SMID              int             `json:"sm_id"`
+	DateCreated       string          `json:"date_created"`
+	OOFShard          string          `json:"oof_shard"`
 }
 
 type DTODeliveryInfo struct {
@@ -32,26 +32,25 @@ type DTOPaymentInfo struct {
 	RequestID    string `json:"request_id"`
 	Currency     string `json:"currency"`
 	Provider     string `json:"provider"`
-	Amount       int `json:"amount"`
-	PaymentDT    int `json:"payment_dt"`
+	Amount       int    `json:"amount"`
+	PaymentDT    int    `json:"payment_dt"`
 	Bank         string `json:"bank"`
-	DeliveryCost int `json:"delivery_cost"`
-	GoodsTotal   int `json:"goods_total"`
-	CustomFee    int `json:"custom_fee"`
+	DeliveryCost int    `json:"delivery_cost"`
+	GoodsTotal   int    `json:"goods_total"`
+	CustomFee    int    `json:"custom_fee"`
 }
 
 type DTOItemInfo struct {
-	OrderUID string `json:"-"`
-	ChrtID      int `json:"chrt_id"`
+	OrderUID    string `json:"-"`
+	ChrtID      int    `json:"chrt_id"`
 	TrackNumber string `json:"track_number"`
-	Price       int `json:"price"`
+	Price       int    `json:"price"`
 	RID         string `json:"rid"`
 	Name        string `json:"name"`
-	Sale        int `json:"sale"`
+	Sale        int    `json:"sale"`
 	Size        string `json:"size"`
-	TotalPrice  int `json:"total_price"`
-	NmID        int `json:"nm_id"`
+	TotalPrice  int    `json:"total_price"`
+	NmID        int    `json:"nm_id"`
 	Brand       string `json:"brand"`
-	Status      int `json:"status"`
+	Status      int    `json:"status"`
 }
-

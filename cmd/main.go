@@ -2,22 +2,22 @@ package main
 
 import (
 	"context"
-	"strings"
 	"fmt"
-	"time"
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
+	"time"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"github.com/joho/godotenv"
 
-	"WB-Tech-L0/internal/adapters/http"
 	"WB-Tech-L0/internal/adapters/cache"
+	"WB-Tech-L0/internal/adapters/http"
 	"WB-Tech-L0/internal/adapters/kafka"
-	"WB-Tech-L0/internal/adapters/log"
+	logger "WB-Tech-L0/internal/adapters/log"
 	"WB-Tech-L0/internal/adapters/repository"
 	"WB-Tech-L0/internal/usecase"
 )
@@ -65,30 +65,30 @@ func main() {
 	db, err := gorm.Open(postgres.Open(pgDSN), &gorm.Config{})
 	if err != nil {
 		lg.Error("boot: gorm open failed", "err", err)
-		log.Fatalf("gorm open failed %v", err)			
+		log.Fatalf("gorm open failed %v", err)
 	}
 
 	repo := repository.NewPostgresRepo(db, lg)
 	memcache := cache.NewMemoryCache(cacheLimit, cacheDeleteCount, lg)
-	svc :=	usecase.NewOrderService(repo, memcache, lg) 
+	svc := usecase.NewOrderService(repo, memcache, lg)
 
 	if err := svc.WarmUpCache(ctx, warmUpLimit); err != nil {
 		lg.Error("boot: warmUp failed", "err", err)
 	}
 
 	consCfg := kafka.Config{
-		Brokers: kafkaBrokers,
-		Topic: kafkaTopic,
-		GroupID: kafkaGroup,
-		MinBytes: 1 << 10,
-		MaxBytes: 10 << 20,
-		StartOffset: -1,
+		Brokers:        kafkaBrokers,
+		Topic:          kafkaTopic,
+		GroupID:        kafkaGroup,
+		MinBytes:       1 << 10,
+		MaxBytes:       10 << 20,
+		StartOffset:    -1,
 		CommitInterval: 0,
 	}
 	consumer, err := kafka.New(consCfg, repo, memcache, lg)
 	if err != nil {
 		lg.Error("boot: kafka init failed", "err", err)
-		log.Fatalf("kafka init failed %v", err)	
+		log.Fatalf("kafka init failed %v", err)
 	}
 	go func() {
 		if err := consumer.Start(ctx); err != nil {
@@ -98,14 +98,14 @@ func main() {
 
 	srv := http.NewServer(httpAddr, http.Deps{
 		OrderSvc: svc,
-		Logger: lg,
+		Logger:   lg,
 	})
 
 	go func() {
 		lg.Info("http: server starting", "addr", httpAddr)
 		if err := srv.Start(); err != nil {
 			lg.Error("http: server error", "err", err)
-			cancel()	
+			cancel()
 		}
 	}()
 
@@ -117,6 +117,6 @@ func main() {
 
 	_ = consumer.Stop(ctx)
 	_ = srv.Shutdown(shCtx)
-	
+
 	lg.Info("bye!!!")
 }

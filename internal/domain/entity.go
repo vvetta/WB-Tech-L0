@@ -1,20 +1,20 @@
 package domain
 
 type Order struct {
-	OrderUID string
-	TrackNumber string
-	Entry string
-	Delivery DeliveryInfo
-	Payment PaymentInfo
-	Items []ItemInfo
-	Locale string
+	OrderUID          string
+	TrackNumber       string
+	Entry             string
+	Delivery          DeliveryInfo
+	Payment           PaymentInfo
+	Items             []ItemInfo
+	Locale            string
 	InternalSignature string
-	CustomerID string
-	DeliveryService string
-	ShardKey string
-	SMID int
-	DateCreated string
-	OOFShard string
+	CustomerID        string
+	DeliveryService   string
+	ShardKey          string
+	SMID              int
+	DateCreated       string
+	OOFShard          string
 }
 
 type DeliveryInfo struct {
@@ -41,7 +41,7 @@ type PaymentInfo struct {
 }
 
 type ItemInfo struct {
-	OrderUID string
+	OrderUID    string
 	ChrtID      int
 	TrackNumber string
 	Price       int

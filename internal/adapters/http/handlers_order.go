@@ -2,21 +2,21 @@ package http
 
 import (
 	"errors"
-	"strings"
 	"net/http"
+	"strings"
 
 	"WB-Tech-L0/internal/domain"
 )
 
 func (d Deps) handleGetOrderByID(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		writeError(w, http.StatusMethodNotAllowed, "method not allowed")	
+		writeError(w, http.StatusMethodNotAllowed, "method not allowed")
 		return
 	}
 
 	orderUID := strings.TrimPrefix(r.URL.Path, "/order/")
 	if orderUID == "" || orderUID == r.URL.Path {
-		writeError(w, http.StatusBadRequest, "missing order_uid")	
+		writeError(w, http.StatusBadRequest, "missing order_uid")
 		return
 	}
 
@@ -27,10 +27,10 @@ func (d Deps) handleGetOrderByID(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		d.Logger.Error("http.handleGetOrderByID: get order failed", "order_uid", orderUID, "err", err)
-		
+
 		writeError(w, http.StatusInternalServerError, "internal error")
 		return
 	}
-	
+
 	writeJSON(w, http.StatusOK, toHttpOrder(order))
 }

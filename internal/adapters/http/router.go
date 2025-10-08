@@ -9,5 +9,5 @@ func NewRouter(d Deps) *http.ServeMux {
 
 	mux.HandleFunc("/order/", d.handleGetOrderByID)
 
-	return mux	
+	return mux
 }

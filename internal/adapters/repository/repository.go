@@ -3,17 +3,17 @@ package repository
 import (
 	"WB-Tech-L0/internal/domain"
 	"WB-Tech-L0/internal/usecase"
-	
+
 	"context"
-	"fmt"
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 type PostgresRepo struct {
-	db *gorm.DB
+	db  *gorm.DB
 	log usecase.Logger
 }
 
@@ -25,28 +25,28 @@ func (p *PostgresRepo) UpsertOrder(ctx context.Context, order *domain.Order) (bo
 	if order == nil {
 		err := fmt.Errorf("Нулевой указатель заказа!")
 		p.log.Error("repo.upsertOrder: invalid input", "err", err)
-		
+
 		return false, err
 	}
 
 	p.log.Debug("repo.upsertOrder: begin", "order_uid", order.OrderUID)
-	
+
 	var created bool
 	err := p.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		gm := toGORMOrder(order)
 
 		res := tx.Session(&gorm.Session{FullSaveAssociations: true}).
-		Clauses(clause.OnConflict{
-			Columns: []clause.Column{{Name: "order_uid"}},
-			DoNothing: true,
-		}).
-		Create(gm)
-		
+			Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "order_uid"}},
+				DoNothing: true,
+			}).
+			Create(gm)
+
 		if res.Error != nil {
 			return res.Error
 		}
 
-		created = res.RowsAffected > 0 
+		created = res.RowsAffected > 0
 		return nil
 	})
 
@@ -67,8 +67,8 @@ func (p *PostgresRepo) UpsertOrder(ctx context.Context, order *domain.Order) (bo
 func (p *PostgresRepo) GetOrderById(ctx context.Context, orderUID string) (*domain.Order, error) {
 	if orderUID == "" {
 		err := fmt.Errorf("Передан пустой id заказа!")
-		p.log.Error("repo.GetOrderById: invalid input", "err", err)	
-		
+		p.log.Error("repo.GetOrderById: invalid input", "err", err)
+
 		return nil, err
 	}
 
@@ -79,11 +79,11 @@ func (p *PostgresRepo) GetOrderById(ctx context.Context, orderUID string) (*doma
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			p.log.Info("repo.GetOrderById: not found", "order_uid", orderUID)
-		
-			return nil, fmt.Errorf("Заказ с данным ( %s )id не найден!", orderUID)	
+
+			return nil, fmt.Errorf("Заказ с данным ( %s )id не найден!", orderUID)
 		}
 		p.log.Error("repo.GetOrderById: db error", "order_uid", orderUID)
-		
+
 		return nil, fmt.Errorf("Произошла ошибка при получении заказа! %w", err)
 	}
 
@@ -102,7 +102,7 @@ func (p *PostgresRepo) ListRecentOrders(ctx context.Context, limit int) ([]*doma
 	err := p.db.WithContext(ctx).Preload("Items").Order("date_created DESC").Limit(limit).Find(&gormOrders).Error
 	if err != nil {
 		p.log.Error("repo.ListRecentOrders: db error", "err", err)
-		
+
 		return nil, fmt.Errorf("Произошла ошибка при получении списка заказов! %v", err)
 	}
 
@@ -115,4 +115,3 @@ func (p *PostgresRepo) ListRecentOrders(ctx context.Context, limit int) ([]*doma
 
 	return domainOrders, nil
 }
-

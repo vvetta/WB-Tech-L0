@@ -1,14 +1,14 @@
 package usecase
 
 import (
-	"context"
 	"WB-Tech-L0/internal/domain"
+	"context"
 )
 
 type OrderService struct {
-	repo Repo
+	repo  Repo
 	cache Cache
-	log Logger
+	log   Logger
 }
 
 func NewOrderService(r Repo, c Cache, l Logger) *OrderService {
@@ -32,7 +32,7 @@ func (s *OrderService) GetByID(ctx context.Context, orderUID string) (*domain.Or
 	}
 	s.cache.Set(orderUID, order)
 	s.log.Debug("usecase.GetByID: cache miss -> db", "order_uid", orderUID)
-	
+
 	return order, nil
 }
 
@@ -42,7 +42,7 @@ func (s *OrderService) WarmUpCache(ctx context.Context, limit int) error {
 	orders, err := s.repo.ListRecentOrders(ctx, limit)
 	if err != nil {
 		s.log.Error("usecase.WarmUpCache: repo error", "err", err)
-		return err	
+		return err
 	}
 
 	for _, order := range orders {

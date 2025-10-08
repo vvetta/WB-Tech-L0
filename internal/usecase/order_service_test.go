@@ -1,8 +1,8 @@
 package usecase_test
 
 import (
-	"errors"
 	"context"
+	"errors"
 	"testing"
 
 	"WB-Tech-L0/internal/domain"
@@ -15,42 +15,43 @@ import (
 )
 
 type noopLogger struct{}
-func (noopLogger) Info(string, ...any) {}
+
+func (noopLogger) Info(string, ...any)  {}
 func (noopLogger) Error(string, ...any) {}
 func (noopLogger) Debug(string, ...any) {}
 
 func fakeOrder() *domain.Order {
 	gofakeit.Seed(0)
 	return &domain.Order{
-		OrderUID: gofakeit.UUID(),
+		OrderUID:    gofakeit.UUID(),
 		TrackNumber: gofakeit.LetterN(10),
-		Entry: "WBIL",
+		Entry:       "WBIL",
 		Delivery: domain.DeliveryInfo{
-			Name: gofakeit.Name(),
-			Phone: gofakeit.Phone(),
-			Zip: gofakeit.Zip(),
-			City: gofakeit.City(),
+			Name:    gofakeit.Name(),
+			Phone:   gofakeit.Phone(),
+			Zip:     gofakeit.Zip(),
+			City:    gofakeit.City(),
 			Address: gofakeit.Street(),
-			Region: gofakeit.State(),
-			Email: gofakeit.Email(),
+			Region:  gofakeit.State(),
+			Email:   gofakeit.Email(),
 		},
 		Payment: domain.PaymentInfo{
-			Transaction: gofakeit.UUID(),
-			Currency: "USD",
-			Provider: "wbpay",
-			Amount: 100,
-			PaymentDT: 170000,
-			Bank: "alpha",
+			Transaction:  gofakeit.UUID(),
+			Currency:     "USD",
+			Provider:     "wbpay",
+			Amount:       100,
+			PaymentDT:    170000,
+			Bank:         "alpha",
 			DeliveryCost: 10,
-			GoodsTotal: 90,
+			GoodsTotal:   90,
 		},
-		Locale: "en",
-		CustomerID: "test",
+		Locale:          "en",
+		CustomerID:      "test",
 		DeliveryService: "meest",
-		ShardKey: "9",
-		SMID: 99,
-		DateCreated: "2025",
-		OOFShard: "1",
+		ShardKey:        "9",
+		SMID:            99,
+		DateCreated:     "2025",
+		OOFShard:        "1",
 	}
 }
 
@@ -160,10 +161,9 @@ func TestOrderService_WarmUpCache_dbError(t *testing.T) {
 
 	dbErr := errors.New("db down")
 	repo.EXPECT().ListRecentOrders(gomock.Any(), 3).Return(nil, dbErr)
-	
+
 	svc := usecase.NewOrderService(repo, cache, noopLogger{})
 	err := svc.WarmUpCache(context.Background(), 3)
 	require.Error(t, err)
 	require.ErrorIs(t, err, dbErr)
 }
-

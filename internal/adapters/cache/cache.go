@@ -8,19 +8,19 @@ import (
 )
 
 type MemoryCache struct {
-	mu sync.RWMutex
-	store map[string]*domain.Order
-	itemLimit int 
+	mu              sync.RWMutex
+	store           map[string]*domain.Order
+	itemLimit       int
 	deleteItemCount int
-	log usecase.Logger
+	log             usecase.Logger
 }
 
 func NewMemoryCache(limit, deleteCount int, log usecase.Logger) *MemoryCache {
 	return &MemoryCache{
-		store: make(map[string]*domain.Order),
-		itemLimit: limit,
+		store:           make(map[string]*domain.Order),
+		itemLimit:       limit,
 		deleteItemCount: deleteCount,
-		log: log,
+		log:             log,
 	}
 }
 
@@ -29,7 +29,7 @@ func (m *MemoryCache) Set(key string, value *domain.Order) {
 	defer m.mu.Unlock()
 
 	m.log.Debug("cache.Set: begin", "key", key)
-	
+
 	// Псевдо защита от переполнения памяти.
 	// Конечно это далеко не продакшн. :)
 	if len(m.store) >= m.itemLimit {
@@ -42,7 +42,9 @@ func (m *MemoryCache) Set(key string, value *domain.Order) {
 
 		for key, _ := range m.store {
 			// Получаем N ключей рандомных элементов.
-			if keysCount == m.deleteItemCount { break }	
+			if keysCount == m.deleteItemCount {
+				break
+			}
 
 			keys = append(keys, key)
 			keysCount++

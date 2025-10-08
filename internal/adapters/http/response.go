@@ -20,4 +20,3 @@ func writeError(w http.ResponseWriter, code int, msg string) {
 	}
 	writeJSON(w, code, resp{Error: msg})
 }
-

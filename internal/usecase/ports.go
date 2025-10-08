@@ -14,7 +14,7 @@ type CacheWarmer interface {
 }
 
 type Cache interface {
-	Set(key string, value *domain.Order) 
+	Set(key string, value *domain.Order)
 	Get(key string) (*domain.Order, bool)
 }
 

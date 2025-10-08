@@ -1,11 +1,11 @@
 package kafka
 
 import (
-	"fmt"
-	"time"
-	"errors"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"time"
 
 	kafkago "github.com/segmentio/kafka-go"
 
@@ -13,20 +13,20 @@ import (
 )
 
 type Config struct {
-	Brokers []string
-	Topic string
-	GroupID string
-	MinBytes int
-	MaxBytes int
-	StartOffset int64
+	Brokers        []string
+	Topic          string
+	GroupID        string
+	MinBytes       int
+	MaxBytes       int
+	StartOffset    int64
 	CommitInterval time.Duration
 }
 
 type Consumer struct {
 	reader *kafkago.Reader
-	log usecase.Logger
-	repo usecase.Repo
-	cache usecase.Cache
+	log    usecase.Logger
+	repo   usecase.Repo
+	cache  usecase.Cache
 }
 
 func New(cfg Config, repo usecase.Repo, cache usecase.Cache, log usecase.Logger) (*Consumer, error) {
@@ -39,20 +39,20 @@ func New(cfg Config, repo usecase.Repo, cache usecase.Cache, log usecase.Logger)
 	}
 
 	rd := kafkago.NewReader(kafkago.ReaderConfig{
-		Brokers: cfg.Brokers,
-		Topic: cfg.Topic,
-		GroupID: cfg.GroupID,
-		MinBytes: cfg.MinBytes,
-		MaxBytes: cfg.MaxBytes,
-		StartOffset: cfg.StartOffset,
+		Brokers:        cfg.Brokers,
+		Topic:          cfg.Topic,
+		GroupID:        cfg.GroupID,
+		MinBytes:       cfg.MinBytes,
+		MaxBytes:       cfg.MaxBytes,
+		StartOffset:    cfg.StartOffset,
 		CommitInterval: cfg.CommitInterval,
 	})
 
 	return &Consumer{
 		reader: rd,
-		repo: repo,
-		cache: cache,
-		log: log,
+		repo:   repo,
+		cache:  cache,
+		log:    log,
 	}, nil
 }
 
@@ -68,8 +68,8 @@ func (c *Consumer) Start(ctx context.Context) error {
 				return nil
 			}
 			c.log.Error("kafkaConsumer.Start: fetch error", "err", err)
-			//TODO Тут можно поставить задержку. Пока не буду ставить.	
-			continue	
+			//TODO Тут можно поставить задержку. Пока не буду ставить.
+			continue
 		}
 
 		if err := c.process(ctx, m.Value); err != nil {
@@ -79,7 +79,7 @@ func (c *Consumer) Start(ctx context.Context) error {
 
 		if err := c.reader.CommitMessages(ctx, m); err != nil {
 			c.log.Error("kafkaConsumer.Start: commit error", "topic", m.Topic, "err", err)
-			continue	
+			continue
 		}
 
 		c.log.Debug("kafkaComsumer.Start: commited")
@@ -96,7 +96,7 @@ func (c *Consumer) Stop(ctx context.Context) error {
 
 func (c *Consumer) process(ctx context.Context, payload []byte) error {
 	var msg DTOOrder
-	
+
 	if err := json.Unmarshal(payload, &msg); err != nil {
 		return fmt.Errorf("Ошибка десериализации json: %w", err)
 	}
@@ -110,7 +110,6 @@ func (c *Consumer) process(ctx context.Context, payload []byte) error {
 
 	c.cache.Set(order.OrderUID, order)
 	c.log.Info("kafkaConsumer.process: processed", "order_uid", order.OrderUID)
-	
+
 	return nil
 }
-
