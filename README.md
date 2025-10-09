@@ -34,7 +34,9 @@
 
 ### 1. Установить зависимости
 
-`go mod download`
+```bash
+go mod download
+```
 
 ### 2. Поднять инфраструктуру
 
@@ -45,17 +47,23 @@
 
 ### 3. Применить миграции
 
-`make migrate-up`
+```bash
+make migrate-up
+```
 
 ### 4. Запустить backend
 
-`go run ./cmd/main.go`
+```bash
+go run ./cmd/main.go
+```
 
 ### 5. Запустить frontend
 
-`npm install -g live-server`
-`cd frontend`
-`live-server --port=3000`
+```bash
+npm install -g live-server
+cd frontend
+live-server --port=3000
+```
 
 ## Генерация тестовых заказов
 
