@@ -57,6 +57,15 @@
 `cd frontend`
 `live-server --port=3000`
 
+## Генерация тестовых заказов
+
+В проекте присутствует **Kafka producer**, который предназначен для генерации тестовых заказов.
+Для того чтобы послать в **Kafka** тестовый(е) заказ нужно прописать следующую команду (из корня проекта):
+
+```bash
+go run ./cmd/producer/main.go --brokers=<brokers sep=, (localhost:9092)> --topic=<topic name (orders)> --gen=<count generate order (2)>
+```
+ 
 ## Тестирование
 
 Для запуска тестов используйте команду: `make test`
