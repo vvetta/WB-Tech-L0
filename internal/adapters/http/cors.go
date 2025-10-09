@@ -12,10 +12,9 @@ func withCORS(next http.Handler) http.Handler {
 
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
-			return	
+			return
 		}
 
 		next.ServeHTTP(w, r)
 	})
 }
-

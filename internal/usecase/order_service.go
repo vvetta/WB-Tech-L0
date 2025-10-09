@@ -29,8 +29,8 @@ func (s *OrderService) GetByID(ctx context.Context, orderUID string) (*domain.Or
 		s.log.Debug("usecase.GetByID: cache hit", "order_uid", orderUID, "timeDuration_ms", cacheMs)
 		return order, nil
 	}
-	
-	tDB := time.Now()	
+
+	tDB := time.Now()
 	order, err := s.repo.GetOrderById(ctx, orderUID)
 	if err != nil {
 		return nil, err
