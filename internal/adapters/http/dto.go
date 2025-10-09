@@ -11,7 +11,7 @@ type DTOOrder struct {
 	InternalSignature string          `json:"internal_signature"`
 	CustomerID        string          `json:"customer_id"`
 	DeliveryService   string          `json:"delivery_service"`
-	ShardKey          string          `json:"shard_key"`
+	ShardKey          string          `json:"shardkey"`
 	SMID              int             `json:"sm_id"`
 	DateCreated       string          `json:"date_created"`
 	OOFShard          string          `json:"oof_shard"`

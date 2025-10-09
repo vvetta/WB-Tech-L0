@@ -3,6 +3,7 @@ package usecase
 import (
 	"WB-Tech-L0/internal/domain"
 	"context"
+	"time"
 )
 
 type OrderService struct {
@@ -21,17 +22,23 @@ func (s *OrderService) GetByID(ctx context.Context, orderUID string) (*domain.Or
 		return nil, domain.ErrNotFound
 	}
 
+	t0 := time.Now()
 	if order, ok := s.cache.Get(orderUID); ok {
-		s.log.Debug("usecase.GetByID: cache hit", "order_uid", orderUID)
+		t_cache := time.Since(t0)
+		cacheMs := float64(t_cache) / float64(time.Millisecond)
+		s.log.Debug("usecase.GetByID: cache hit", "order_uid", orderUID, "timeDuration_ms", cacheMs)
 		return order, nil
 	}
-
+	
+	tDB := time.Now()	
 	order, err := s.repo.GetOrderById(ctx, orderUID)
 	if err != nil {
 		return nil, err
 	}
+	t := time.Since(tDB)
+	dbMs := float64(t) / float64(time.Millisecond)
 	s.cache.Set(orderUID, order)
-	s.log.Debug("usecase.GetByID: cache miss -> db", "order_uid", orderUID)
+	s.log.Debug("usecase.GetByID: cache miss -> db", "order_uid", orderUID, "timeDuration_ms", dbMs)
 
 	return order, nil
 }

@@ -51,8 +51,8 @@ type PaymentMsg struct {
 	CustomFee int `json:"custom_fee"`
 }
 type ItemMsg struct {
-	ChrtID int `josn:"chrt_id"`
-	TrackNumber string `josn:"track_number"`
+	ChrtID int `json:"chrt_id"`
+	TrackNumber string `json:"track_number"`
 	Price int `json:"price"`
 	RID string `json:"rid"`
 	Name string `json:"name"`

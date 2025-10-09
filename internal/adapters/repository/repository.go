@@ -80,7 +80,7 @@ func (p *PostgresRepo) GetOrderById(ctx context.Context, orderUID string) (*doma
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			p.log.Info("repo.GetOrderById: not found", "order_uid", orderUID)
 
-			return nil, fmt.Errorf("Заказ с данным ( %s )id не найден!", orderUID)
+			return nil, domain.ErrNotFound
 		}
 		p.log.Error("repo.GetOrderById: db error", "order_uid", orderUID)
 

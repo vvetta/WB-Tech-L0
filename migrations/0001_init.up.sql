@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS orders (
   amount INTEGER NOT NULL,
   payment_dt INTEGER NOT NULL,
   bank TEXT NOT NULL,
-  delivery_info INTEGER NOT NULL,
+  delivery_cost INTEGER NOT NULL,
   goods_total INTEGER NOT NULL,
   custom_fee INTEGER NOT NULL,
 

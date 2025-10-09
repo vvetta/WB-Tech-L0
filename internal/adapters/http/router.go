@@ -4,10 +4,10 @@ import (
 	"net/http"
 )
 
-func NewRouter(d Deps) *http.ServeMux {
+func NewRouter(d Deps) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/order/", d.handleGetOrderByID)
 
-	return mux
+	return withCORS(mux)
 }

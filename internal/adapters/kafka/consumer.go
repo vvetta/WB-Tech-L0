@@ -44,7 +44,7 @@ func New(cfg Config, repo usecase.Repo, cache usecase.Cache, log usecase.Logger)
 		GroupID:        cfg.GroupID,
 		MinBytes:       cfg.MinBytes,
 		MaxBytes:       cfg.MaxBytes,
-		StartOffset:    cfg.StartOffset,
+		StartOffset:    kafkago.FirstOffset,
 		CommitInterval: cfg.CommitInterval,
 	})
 

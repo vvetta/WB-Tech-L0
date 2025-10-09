@@ -25,7 +25,6 @@ type Order struct {
 	InternalSignature string
 	CustomerID        string
 	DeliveryService   string
-	DeliveryInfo      string
 	ShardKey          string
 	SMID              int
 	DateCreated       string
@@ -58,15 +57,17 @@ type PaymentInfo struct {
 type ItemInfo struct {
 	BaseModel
 	OrderUID    string `gorm:"index"`
-	ChrtID      int    `gorm:"not null"`
-	TrackNumber string `gorm:"not null"`
+	ChrtID      int    `gorm:"not null;column:chrt_id"`
+	TrackNumber string `gorm:"not null;column:track_number"`
 	Price       int    `gorm:"not null"`
-	RID         string `gorm:"not null"`
+	RID         string `gorm:"not null;column:rid"`
 	Name        string `gorm:"not null"`
 	Sale        int    `gorm:"not null"`
 	Size        string `gorm:"not null"`
-	TotalPrice  int    `gorm:"not null"`
-	NmID        int    `gorm:"not null"`
+	TotalPrice  int    `gorm:"not null;column:total_price"`
+	NmID        int    `gorm:"not null;column:nm_id"`
 	Brand       string `gorm:"not null"`
 	Status      int    `gorm:"not null"`
 }
+
+func (ItemInfo) TableName() string { return "items" }
